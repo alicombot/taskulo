@@ -1,5 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
 from .forms import TaskForm
 from .models import Task
 
@@ -71,3 +73,20 @@ def update_task(request, task_id):
             return render(request, 'task/tasks.html', context)
 
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@require_POST
+def delete_task(request, task_id):
+    try:
+        task = get_object_or_404(Task, id=task_id)
+        task.delete()
+        return JsonResponse({
+            "success": True,
+            "message": "Task deleted successfully",
+            "task_id": task_id
+        })
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "message": f"Error deleting task: {str(e)}"
+        }, status=400)
