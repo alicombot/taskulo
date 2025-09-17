@@ -361,7 +361,7 @@ document.addEventListener("click", async function (e) {
             document.querySelector("[name=csrfmiddlewaretoken]")?.value || "";
 
         try {
-            const response = await fetch(`/delete-task/${taskId}/`, {
+            const response = await fetch(`/dashboard/delete-task/${taskId}/`, {
                 method: "POST",
                 headers: {
                     "X-CSRFToken": csrf,

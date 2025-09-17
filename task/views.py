@@ -14,7 +14,7 @@ def index(request):
     tasks = Task.objects.all()
     return render(request, 'task/tasks.html', {"tasks": tasks})
 
-
+@login_required
 def create_task(request):
     if request.method == "POST":
 
@@ -43,7 +43,7 @@ def create_task(request):
 
     return JsonResponse({"error": "Invalid request"}, status=400)
 
-
+@login_required
 def update_task(request, task_id):
     if request.method == "POST":
         try:
@@ -77,7 +77,7 @@ def update_task(request, task_id):
 
     return JsonResponse({"error": "Invalid request"}, status=400)
 
-
+@login_required
 @require_POST
 def delete_task(request, task_id):
     try:

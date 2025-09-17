@@ -1,5 +1,6 @@
-{% extends 'parent/base.html' %} {% block title %}
-	{{ user.username }}
+{% extends 'parent/base.html' %}
+{% block title %}
+    {{ user.username }}
 {% endblock %}
 {% block content %}
     <main class="main">
@@ -325,7 +326,11 @@
                                 <circle cx="1" cy="1" r="1" fill="#1C1D22"></circle>
                             </svg>
 
-                            <div class="task-options" id="task-options-{{ task.id }}" style="display: none">
+                            <div
+                                    class="task-options"
+                                    id="task-options-{{ task.id }}"
+                                    style="display: none"
+                            >
                                 <div class="task-option">Delete</div>
                                 <div class="task-option">Edit</div>
                             </div>
