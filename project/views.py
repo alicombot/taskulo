@@ -35,4 +35,5 @@ def delete_project(request):
     project_id = request.POST.get("id")
     project = get_object_or_404(Project, id=project_id)
     project.delete()
-    return JsonResponse({'success': True})
+    projects = Project.objects.filter(owner=request.user)
+    return JsonResponse({'total_project': projects.count()})

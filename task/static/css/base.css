@@ -1860,8 +1860,8 @@ select.task-form__select option {
   right: 6px;
   top: 50%;
   transform: translateY(-50%);
-  height: 34px;
-  width: 34px;
+  height: 24px;
+  width: 24px;
   padding: 0;
   border-radius: 50%;
   border: 1px solid var(--border-color, rgba(0,0,0,.12));
@@ -1872,7 +1872,7 @@ select.task-form__select option {
   align-items: center;
   justify-content: center;
 }
-.add-project__btn svg { width: 20px; height: 20px; }
+.add-project__btn svg { width: 10px; height: 10px; }
 .add-project__btn:hover {
   filter: brightness(1.1);
 }

@@ -541,8 +541,9 @@ function attachProjectActions(projectItem) {
                 id: projectItem.dataset.id,
                 csrfmiddlewaretoken: csrfToken
             },
-            success: function () {
+            success: function (data) {
                 projectItem.remove();
+                $('.status-project__item--active').text('All projects ' + '(' + data.total_project + ')')
             },
             error: function (xhr) {
                 console.error("Delete error:", xhr.responseText);
