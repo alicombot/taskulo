@@ -1831,3 +1831,100 @@ select.task-form__select option {
     left: -3.3rem;
     z-index: 3;
 }
+
+/* add project inline field */
+.add-project__field-wrap {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.status-task .add-project {
+  width: 100%;
+  box-sizing: border-box;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(0,0,0,.12));
+  background: var(--surface-1, rgba(255,255,255,.06));
+  color: var(--text-first-color, #1c1d22);
+  padding: 0 52px 0 12px; /* reserve space for the circular button */
+  font-family: 'Exo2-Medium';
+  outline: none;
+}
+.status-task .add-project::placeholder {
+  color: rgba(0,0,0,.4);
+}
+
+.add-project__btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 24px;
+  width: 24px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border-color, rgba(0,0,0,.12));
+  background: var(--primary-bg, #1c1d22);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.add-project__btn svg { width: 10px; height: 10px; }
+.add-project__btn:hover {
+  filter: brightness(1.1);
+}
+.add-project__btn:active {
+  transform: translateY(-50%) scale(0.98);
+}
+
+/* project actions (edit/delete) on project items */
+.status-task > .status-project__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+.status-task > .status-project__item .project-actions {
+  display: none;
+  gap: 4px;
+}
+.status-task > .status-project__item:hover .project-actions {
+  display: inline-flex;
+}
+.project-action-btn {
+  height: 22px;
+  width: 22px;
+}
+.project-action-btn {
+  height: 28px;
+  width: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, rgba(0,0,0,.1));
+  background: var(--surface-1, rgba(255,255,255,.06));
+  color: var(--text-first-color, #1c1d22);
+  cursor: pointer;
+}
+.project-action-btn svg { width: 18px; height: 18px; }
+.project-action-btn:hover { filter: brightness(1.07); }
+.project-action-btn:active { transform: scale(0.98); }
+
+.project-rename-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, rgba(0,0,0,.12));
+  background: var(--surface-1, rgba(255,255,255,.06));
+  color: var(--text-first-color, #1c1d22);
+  padding: 0 8px;
+  outline: none;
+  font-family: 'Exo2-Medium';
+}
+

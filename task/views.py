@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-
+from project.models import Project
 from .forms import TaskForm
 from .models import Task
 
@@ -12,7 +12,8 @@ from .models import Task
 @login_required
 def index(request):
     tasks = Task.objects.all()
-    return render(request, 'task/tasks.html', {"tasks": tasks})
+    projects = Project.objects.filter(owner=request.user)
+    return render(request, 'task/tasks.html', {"tasks": tasks, "projects": projects})
 
 @login_required
 def create_task(request):
