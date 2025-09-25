@@ -6,7 +6,7 @@
 {% block content %}
     <main class="main">
 
-    <section class="home">
+    <section id="home" class="home">
 
         <div class="container">
 
@@ -27,7 +27,7 @@
                         </h3>
 
                         <div class="home__link">
-                            <a href="./index.html">Lets go</a>
+                            <a href="{% url 'account:sign_up' %}">Lets go</a>
                         </div>
 
                     </div>
@@ -45,7 +45,7 @@
 
     </section>
 
-    <section class="aboutus">
+    <section id="aboutus" class="aboutus">
 
         <div class="container">
 
@@ -91,7 +91,7 @@
 
 
                     <div class="about-content__btn">
-                        <a href="./register.html">Get in free</a>
+                        <a href="{% url 'account:sign_up' %}">Get in free</a>
                     </div>
                 </div>
 
@@ -101,7 +101,7 @@
 
     </section>
 
-    <section class="our-feature">
+    <section id="our-feature" class="our-feature">
 
         <div class="container">
 
@@ -224,7 +224,7 @@
 
     </section>
 
-    <section class="how-it-work">
+    <section id="how-it-work" class="how-it-work">
 
         <div class="container">
 
@@ -302,7 +302,7 @@
 
     </section>
 
-    <section class="start-planing">
+    <section id="start-planing" class="start-planing">
 
         <div class="container">
 
@@ -320,7 +320,7 @@
 
             </div>
 
-            <a href="./register.html" class="start-planing__btn">Get it Free</a>
+            <a href="{% url 'account:sign_up' %}" class="start-planing__btn">Get it Free</a>
 
         </div>
         <h3 class="copy-right">

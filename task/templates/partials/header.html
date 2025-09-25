@@ -15,7 +15,14 @@
                         id="avatar-header"
                 />
                 {% else %}
-                    <img src="{% static 'images/profile.png' %}" alt="profile" width="78" height="52" class="profile__image">
+                     <img
+                        class="profile__image"
+                        src="{% static 'images/user.png' %}"
+                        alt="profile"
+                        width="78"
+                        height="52"
+                        id="avatar-header"
+                     />
                 {% endif %}
             </div>
 

@@ -13,6 +13,11 @@ html{
     font-size: 62.5%;   /*  10px */
 }
 
+/* Ensure native hash jumps account for sticky header on landing */
+html {
+    scroll-padding-top: 10.8rem;
+}
+
 
 body{
     background-color: var(--primery-color);
@@ -73,9 +78,10 @@ ul {
 
 
 .header {
-
     background-color: #1d233d ;
-  
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .nav {
@@ -206,6 +212,33 @@ ul {
     padding-top: 9.8rem;
     padding-bottom: 9.8rem;
     background-color: #1d233d
+}
+
+/* Ensure anchored sections account for sticky header when using hash navigation */
+#home, #aboutus, #our-feature, #how-it-work, #start-planing {
+    scroll-margin-top: 10.8rem;
+}
+
+/* Section entrance animation for smoother feel after hash navigation */
+@keyframes sectionFadeSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-enter {
+    animation: sectionFadeSlideIn 420ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .section-enter {
+        animation: none;
+    }
 }
 
 .row{

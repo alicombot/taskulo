@@ -100,15 +100,22 @@ def update_user(request):
         return JsonResponse({'field': 'name', 'message': 'required field.'}, status=400)
 
 
-    if email and email != user.email:
-        if User.objects.filter(email=email).exclude(pk=user.pk).exists():
-            return JsonResponse({'field': 'email', 'message': 'Email already exists'}, status=400)
-        user.email = email
+    if email:
+        if email != user.email:
+            if User.objects.filter(email=email).exclude(pk=user.pk).exists():
+                return JsonResponse({'field': 'email', 'message': 'Email already exists'}, status=400)
+            user.email = email
+    else:
+        return JsonResponse({'field': 'email', 'message': 'required field.'}, status=400)
+
 
     if username and username != user.username:
         if User.objects.filter(username=username).exclude(id=user.id).exists():
             return JsonResponse({'field': 'username', 'message': 'Username already exists'}, status=400)
         user.username = username
+    else:
+        user.username = username
+
 
 
     user.save()

@@ -12,6 +12,10 @@ const accountEditBtn = document.getElementById("account-edit-btn");
 const accountSaveBtn = document.getElementById("account-save-btn");
 
 const headerProfile = document.querySelector(".nav__item--profile");
+const themeToggleItem = document.getElementById("panel-theme-toggle");
+
+
+
 
 function openSidebarContent(contentId) {
     const contentElement = document.querySelector(contentId);
@@ -39,8 +43,21 @@ function openSidebarContent(contentId) {
             titlepanelHead.textContent = "Account";
         } else if (contentId === "#panel-home") {
             titlepanelHead.textContent = "Projects";
+        } else if (contentId === "#panel-messages") {
+            titlepanelHead.textContent = "Messages";
         }
     }
+}
+
+// Handle theme toggle menu item
+if (themeToggleItem) {
+    themeToggleItem.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const isDark = !document.body.classList.contains("theme-dark");
+        document.body.classList.toggle("theme-dark", isDark);
+        document.body.classList.toggle("theme-light", !isDark);
+    });
 }
 
 if (headerProfile) {
@@ -68,7 +85,11 @@ if (headerProfile) {
 }
 
 menuList.forEach((item) => {
-    item.addEventListener("click", function () {
+    item.addEventListener("click", function (e) {
+        // Skip panel switching for theme toggle item
+        if (this.id === "panel-theme-toggle") {
+            return; // handler above takes care of toggling
+        }
         let contentId = this.getAttribute("data-content-id");
         let contentElement = document.querySelector(contentId);
         let activeItem = document.querySelector(".menu-list__item--active");
@@ -93,6 +114,8 @@ menuList.forEach((item) => {
                     titlepanelHead.textContent = "Account";
                 } else if (contentId === "#panel-home") {
                     titlepanelHead.textContent = "Projects";
+                } else if (contentId === "#panel-messages") {
+                    titlepanelHead.textContent = "Messages";
                 }
             }
         }
@@ -106,12 +129,6 @@ managelistWrappers.forEach((wrapper) => {
         this.classList.toggle("manage-list--active");
         content.classList.toggle("manage-list__content--active");
 
-        if (!isActive) {
-            const titlemanageList = this.querySelector(".manage-list__title");
-            if (titlemanageList) {
-                titlepanelHead.textContent = titlemanageList.textContent;
-            }
-        }
     });
 });
 
@@ -119,7 +136,7 @@ panelthemChange.forEach((panelthemChange) => {
     panelthemChange.addEventListener("click", function () {
         document
             .querySelector(".panel-them--active")
-            .classList.remove("panel-them--active");
+            ?.classList.remove("panel-them--active");
         this.classList.add("panel-them--active");
 
         const isDark = this.classList.contains("panel-them__dark");
@@ -506,12 +523,22 @@ function attachProjectActions(projectItem) {
         input.value = current;
         labelEl.style.display = "none";
         projectItem.insertBefore(input, actions);
+        // Enter editing state: hide actions to avoid overlap with input
+        projectItem.classList.add('editing');
+        actions.style.display = 'none';
         input.focus();
         input.select();
 
+        let isSubmittingRename = false;
+        let renameCommitted = false;
+
         function commitRename() {
+            if (renameCommitted || isSubmittingRename) return;
             const val = input.value.trim();
             const newName = val || current;
+            renameCommitted = true;
+            isSubmittingRename = true;
+            input.disabled = true;
 
             $.ajax({
                 url: "/project/update-project/",
@@ -525,25 +552,41 @@ function attachProjectActions(projectItem) {
                     labelEl.textContent = data.name || newName;
                     input.remove();
                     labelEl.style.display = "";
+                    // restore actions and state
+                    actions.style.display = "";
+                    projectItem.classList.remove('editing');
                 },
                 error: function (xhr) {
                     console.error("Rename error:", xhr.responseText);
                     input.remove();
                     labelEl.style.display = "";
+                    // restore actions and state even on error
+                    actions.style.display = "";
+                    projectItem.classList.remove('editing');
                 },
+                complete: function () {
+                    isSubmittingRename = false;
+                }
             });
         }
 
         function cancelRename() {
+            if (renameCommitted) return;
             input.remove();
             labelEl.style.display = "";
+            // restore actions and state
+            actions.style.display = "";
+            projectItem.classList.remove('editing');
         }
 
         input.addEventListener("keydown", function (ev) {
             if (ev.key === "Enter") commitRename();
             else if (ev.key === "Escape") cancelRename();
-        });
-        input.addEventListener("blur", commitRename);
+        }, { once: false });
+        input.addEventListener("blur", function(){
+            // If already committed by Enter, ignore blur
+            if (!renameCommitted) commitRename();
+        }, { once: true });
     });
 
     deleteBtn &&
@@ -563,9 +606,15 @@ function attachProjectActions(projectItem) {
             },
             success: function (data) {
                 projectItem.remove();
-                $(".status-project__item--active").text(
-                    "All projects " + "(" + data.total_project + ")"
-                );
+                var allProjectsLi = document.querySelector('.status-project__item.project-link[data-id="0"]');
+                if (allProjectsLi) {
+                    var spanAll = allProjectsLi.querySelector('span');
+                    if (spanAll) spanAll.textContent = 'All projects (' + (data.total_project || 0) + ')';
+                } else {
+                    $(".status-project__item--active").text(
+                        "All projects " + "(" + (data.total_project || 0) + ")"
+                    );
+                }
             },
             error: function (xhr) {
                 console.error("Delete error:", xhr.responseText);
@@ -602,11 +651,13 @@ addProject.addEventListener("click", function () {
         '<svg width="12" height="12" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><g opacity="0.9"><path d="M9 5L1 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 9L5 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g></svg>';
 
     let clickingSave = false;
+    let enterPressed = false;
+    let isSubmitting = false;
+    let saved = false;
+
     saveBtn.addEventListener("mousedown", function () {
         clickingSave = true;
     });
-
-    let enterPressed = false;
 
     text.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
@@ -619,11 +670,17 @@ addProject.addEventListener("click", function () {
     });
 
     text.addEventListener("blur", function () {
+        // If blur is caused by clicking the save button, skip handling here
+        if (clickingSave) {
+            clickingSave = false;
+            return;
+        }
         if (enterPressed) {
             enterPressed = false;
             return;
         }
-        if (text.value.trim() !== "") {
+        const value = text.value.trim();
+        if (value !== "") {
             saveText();
         } else {
             newProject.remove();
@@ -631,44 +688,58 @@ addProject.addEventListener("click", function () {
     });
 
     saveBtn.addEventListener("click", function () {
-        if (text.value.trim() !== "") saveText();
         clickingSave = false;
+        if (text.value.trim() !== "") saveText();
     });
 
     function saveText() {
         const value = text.value.trim();
+        if (!value) return;
+        if (isSubmitting || saved) return;
+        isSubmitting = true;
+        saveBtn.disabled = true;
+
         const csrfToken = document.querySelector(
             'input[name="csrfmiddlewaretoken"]'
         ).value;
-        if (!value) return;
-        let saved = false;
 
-        if (!saved) {
-            $.ajax({
-                url: "/project/add-project/",
-                type: "POST",
-                data: {
-                    name: value,
-                    csrfmiddlewaretoken: csrfToken,
-                },
-                success: function (data) {
-                    fieldWrap.remove();
-                    const item = document.createElement("span");
-                    item.textContent = data.name || value;
-                    newProject.setAttribute("data-id", data.id);
-                    newProject.appendChild(item);
-                    attachProjectActions(newProject);
+        $.ajax({
+            url: "/project/add-project/",
+            type: "POST",
+            data: {
+                name: value,
+                csrfmiddlewaretoken: csrfToken,
+            },
+            success: function (data) {
+                fieldWrap.remove();
+                const item = document.createElement("span");
+                item.textContent = data.name || value;
+                newProject.setAttribute("data-id", data.id);
+                // make it clickable like others
+                newProject.classList.add('project-link');
+                newProject.setAttribute('data-url', `/dashboard/projects/${data.id}/tasks/`);
+                newProject.appendChild(item);
+                attachProjectActions(newProject);
+                var allProjectsLi = document.querySelector('.status-project__item.project-link[data-id="0"]');
+                if (allProjectsLi) {
+                    var spanAll = allProjectsLi.querySelector('span');
+                    if (spanAll) spanAll.textContent = 'All projects (' + (data.total_project || 0) + ')';
+                } else {
                     $(".status-project__item--active").text(
-                        "All projects " + "(" + data.total_project + ")"
+                        "All projects " + "(" + (data.total_project || 0) + ")"
                     );
-                    saved = true;
-                },
-                error: function (xhr, status, error) {
-                    console.log("ERROR:", xhr.status, error, xhr.responseText);
-                    alert("Server error");
-                },
-            });
-        }
+                }
+                saved = true;
+            },
+            error: function (xhr, status, error) {
+                console.log("ERROR:", xhr.status, error, xhr.responseText);
+                alert("Server error");
+            },
+            complete: function () {
+                isSubmitting = false;
+                saveBtn.disabled = false;
+            }
+        });
     }
 
     fieldWrap.appendChild(text);
@@ -774,36 +845,41 @@ document.getElementById("gmail").addEventListener("input", function () {
 });
 
 
+// Delegated click: open project tasks (works for old and new items)
 document.addEventListener('click', function (e) {
+    const fromActions = e.target.closest('.project-actions, .project-rename-input');
+    if (fromActions) return;
     const projectLink = e.target.closest('.project-link');
     if (!projectLink) return;
 
     e.preventDefault();
 
-    const url = projectLink.dataset.url;
+    let url = projectLink.dataset.url;
+    if (!url || url === '#') {
+        const id = projectLink.getAttribute('data-id');
+        if (id) {
+            url = `/dashboard/projects/${id}/tasks/`;
+            projectLink.setAttribute('data-url', url);
+        }
+    }
     if (!url) return;
 
-    document.querySelectorAll('.status-project__item span').forEach(span => {
+    document.querySelectorAll('.status-project__item span').forEach(function (span) {
         span.classList.remove('status-project__item--active');
     });
     const spanEl = projectLink.querySelector('span');
     if (spanEl) spanEl.classList.add('status-project__item--active');
 
     fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+        .then(function (response) {
+            if (!response.ok) throw new Error('Network response was not ok');
             return response.text();
         })
-        .then(html => {
-
+        .then(function (html) {
             const taskContainer = document.getElementById('task-container');
-            if (taskContainer) {
-                taskContainer.innerHTML = html;
-            }
+            if (taskContainer) taskContainer.innerHTML = html;
         })
-        .catch(error => {
+        .catch(function (error) {
             console.error('Error loading project tasks:', error);
         });
 });
@@ -840,8 +916,8 @@ document.addEventListener('submit', function (e) {
         headers: {'X-Requested-With': 'XMLHttpRequest'},
         body: formData
     })
-        .then(res => res.json())
-        .then(data => {
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
             if (data.errors) {
                 alert('Validation error');
                 return;
@@ -863,12 +939,12 @@ document.addEventListener('submit', function (e) {
             const url = activeLi ? activeLi.dataset.url : null;
             if (url) {
                 fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
-                    .then(r => r.text())
-                    .then(html => {
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) {
                         const taskContainer = document.getElementById('task-container');
                         if (taskContainer) taskContainer.innerHTML = html;
                     });
             }
         })
-        .catch(err => console.error('Create task error', err));
+        .catch(function (err) { console.error('Create task error', err); });
 });

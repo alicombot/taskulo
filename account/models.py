@@ -1,3 +1,4 @@
+from django.core.validators import RegexValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
@@ -30,7 +31,11 @@ def user_directory_path(instance, filename):
     return f'images/account/{instance.email}'
 
 class User(AbstractUser):
-    username = models.CharField(max_length=80, unique=True, null=True, blank=True)
+    username = models.CharField(max_length=80, unique=True, null=True, blank=True, validators=[RegexValidator(
+        regex='^[a-zA-Z0-9_]*$',
+        message='Username must be Alphanumeric',
+        code='invalid_username'
+    )])
     email = models.EmailField(unique=True)
     photo = models.ImageField(upload_to=user_directory_path, null=True, blank=True)
     USERNAME_FIELD = 'email'

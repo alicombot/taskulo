@@ -18,6 +18,7 @@ def index(request):
     todo_count = tasks.filter(status='todo').count()
     in_progress_count = tasks.filter(status='in progress').count()
     done_count = tasks.filter(status='done').count()
+    current_user = request.user
 
     context = {
         "tasks": tasks,
@@ -26,6 +27,7 @@ def index(request):
         "todo_count": todo_count,
         "in_progress_count": in_progress_count,
         "done_count": done_count,
+        "current_user": current_user,
     }
     return render(request, 'task/tasks.html', context)
 
