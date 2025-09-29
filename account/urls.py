@@ -22,5 +22,5 @@ urlpatterns = [
          name='password_reset_confirm'),
     path('password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('sign-up/', views.sign_up, name='sign_up'),
-
+    path('verify-email/', views.verify_email, name='verify_email')
 ]
