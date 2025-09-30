@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 from project.models import Project
 from .forms import TaskForm
 from .models import Task
@@ -147,4 +148,58 @@ def project_tasks(request, project_id):
         'done_count': done_tasks.count(),
     }
 
+    return render(request, 'task/task.html', context)
+
+
+@login_required
+def search_suggest(request):
+    q = request.GET.get('q', '').strip()
+    if not q:
+        return JsonResponse({"results": []})
+
+    tasks = Task.objects.filter(
+        assigned_to=request.user
+    ).filter(
+        Q(title__icontains=q) | Q(description__icontains=q)
+    ).order_by('-updated_time')[:8]
+
+    results = [
+        {
+            "id": t.id,
+            "title": t.title,
+            "status": t.status,
+        }
+        for t in tasks
+    ]
+    return JsonResponse({"results": results})
+
+
+@login_required
+def search(request):
+    q = request.GET.get('q', '').strip()
+    project_id = request.GET.get('project')
+
+    project = None
+    tasks = Task.objects.filter(assigned_to=request.user)
+    if project_id and project_id.isdigit() and int(project_id) != 0:
+        try:
+            project = Project.objects.get(id=project_id, owner=request.user)
+            tasks = tasks.filter(project=project)
+        except Project.DoesNotExist:
+            project = None
+
+    if q:
+        tasks = tasks.filter(Q(title__icontains=q) | Q(description__icontains=q))
+
+    todo_tasks = tasks.filter(status='todo')
+    in_progress_tasks = tasks.filter(status='in progress')
+    done_tasks = tasks.filter(status='done')
+
+    context = {
+        'project': project,
+        'tasks': tasks,
+        'todo_count': todo_tasks.count(),
+        'in_progress_count': in_progress_tasks.count(),
+        'done_count': done_tasks.count(),
+    }
     return render(request, 'task/task.html', context)
