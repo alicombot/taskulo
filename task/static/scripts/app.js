@@ -361,6 +361,30 @@ function toggleSortOptions() {
   sortWrapper.classList.toggle("open", !isOpen);
 }
 
+// Map selected UI label to backend sort key
+function getSelectedSortKey() {
+  const el = document.querySelector('.sort__text');
+  const txt = (el && el.textContent ? el.textContent : '').trim().toLowerCase();
+  if (txt === 'oldest') return 'oldest';
+  if (txt === 'due soon') return 'due';
+  if (txt === 'high priority') return 'priority';
+  if (txt === 'a-z') return 'az';
+  return 'newest';
+}
+
+// Append current sort to any URL
+function withSort(url) {
+  const key = getSelectedSortKey();
+  try {
+    const u = new URL(url, window.location.origin);
+    if (key && key !== 'newest') u.searchParams.set('sort', key); else u.searchParams.delete('sort');
+    return u.pathname + (u.search || '');
+  } catch (e) {
+    if (key && key !== 'newest') return url + (url.includes('?') ? '&' : '?') + 'sort=' + encodeURIComponent(key);
+    return url;
+  }
+}
+
 document.addEventListener("click", function (event) {
   const sortWrapper = document.querySelector(".sort__wrapper");
   const sortOptions = document.getElementById("sort-options");
@@ -383,6 +407,34 @@ function selectOption(option) {
     sortOptions.style.display = "none";
   }
   if (sortWrapper) sortWrapper.classList.remove("open");
+
+  // After selecting sort, reload current list (search or current project)
+  const form = document.getElementById("search-form");
+  const input = document.getElementById("search-input");
+  if (form && input && input.value && input.value.trim().length > 0) {
+    performSearch(input.value);
+  } else {
+    // refresh active project list
+    let activeLi = null;
+    const activeSpan = document.querySelector(
+      ".project-link span.status-project__item--active"
+    );
+    if (activeSpan) activeLi = activeSpan.closest(".project-link");
+    if (!activeLi)
+      activeLi = document.querySelector(
+        '.status-project__item.project-link[data-id="0"]'
+      );
+    const base = activeLi ? activeLi.dataset.url : null;
+    if (base) {
+      const url = withSort(base);
+      fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+        .then((r) => r.text())
+        .then((html) => {
+          const taskContainer = document.getElementById("task-container");
+          if (taskContainer) taskContainer.innerHTML = html;
+        });
+    }
+  }
 }
 
 function toggleDatePicker() {
@@ -1249,7 +1301,7 @@ document.addEventListener("submit", function (e) {
         try {
           suppressUpdateToastUntil = Date.now() + 2000;
         } catch {}
-        fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+        fetch(withSort(url), { headers: { "X-Requested-With": "XMLHttpRequest" } })
           .then(function (r) {
             return r.text();
           })
@@ -1323,7 +1375,7 @@ document.addEventListener("submit", function (e) {
         );
       const url = activeLi ? activeLi.dataset.url : null;
       if (url) {
-        fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+        fetch(withSort(url), { headers: { "X-Requested-With": "XMLHttpRequest" } })
           .then((r) => r.text())
           .then((html) => {
             const taskContainer = document.getElementById("task-container");
@@ -1430,12 +1482,15 @@ document.addEventListener("submit", function (e) {
       .catch(() => clearSuggestions());
   }, 200);
 
+  
+
   function performSearch(q) {
     if (!searchUrl) return;
     const project = getActiveProjectId();
-    const url = `${searchUrl}?q=${encodeURIComponent(
+    const base = `${searchUrl}?q=${encodeURIComponent(
       q || ""
     )}&project=${encodeURIComponent(project)}`;
+    const url = withSort(base);
     fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
       .then((r) => r.text())
       .then((html) => {

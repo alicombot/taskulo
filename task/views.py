@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.db.models import Q
+from django.db.models import Q, Case, When, IntegerField
 from datetime import date as dt_date
 from project.models import Project
 from .forms import TaskForm
@@ -15,6 +15,8 @@ from .models import Task
 @login_required
 def index(request):
     tasks = Task.objects.filter(assigned_to=request.user)
+    sort_key = request.GET.get('sort', '')
+    tasks = apply_sort(tasks, sort_key)
     projects = Project.objects.filter(owner=request.user)
 
     todo_count = tasks.filter(status='todo').count()
@@ -137,6 +139,9 @@ def project_tasks(request, project_id):
     else:
         tasks = Task.objects.filter(assigned_to=request.user)
 
+    sort_key = request.GET.get('sort', '')
+    tasks = apply_sort(tasks, sort_key)
+
     todo_tasks = tasks.filter(status='todo')
     in_progress_tasks = tasks.filter(status='in progress')
     done_tasks = tasks.filter(status='done')
@@ -148,8 +153,38 @@ def project_tasks(request, project_id):
         'in_progress_count': in_progress_tasks.count(),
         'done_count': done_tasks.count(),
     }
-
     return render(request, 'task/task.html', context)
+
+def apply_sort(queryset, sort_key: str):
+    """Apply supported sort ordering to a Task queryset.
+    Supported keys: newest (default), oldest, due, priority, az
+    """
+    key = (sort_key or '').lower()
+    if key == 'oldest':
+        return queryset.order_by('created_time')
+    if key == 'due':
+        qs = queryset.annotate(
+            due_null=Case(
+                When(due_date__isnull=True, then=1),
+                default=0,
+                output_field=IntegerField(),
+            )
+        )
+        return qs.order_by('due_null', 'due_date', 'created_time')
+    if key == 'priority':
+        qs = queryset.annotate(
+            p_rank=Case(
+                When(priority='high', then=0),
+                When(priority='normal', then=1),
+                When(priority='low', then=2),
+                default=3,
+                output_field=IntegerField(),
+            )
+        )
+        return qs.order_by('p_rank', '-updated_time')
+    if key == 'az':
+        return queryset.order_by('title')
+    return queryset.order_by('-created_time')
 
 
 @login_required
@@ -180,6 +215,7 @@ def search(request):
     q = request.GET.get('q', '').strip()
     date_str = request.GET.get('date', '').strip()
     project_id = request.GET.get('project')
+    sort_key = request.GET.get('sort', '').strip()
 
     project = None
     tasks = Task.objects.filter(assigned_to=request.user)
@@ -205,6 +241,9 @@ def search(request):
             tasks = tasks.filter(due_date=d)
         except ValueError:
             pass
+
+    # Apply sorting based on query param
+    tasks = apply_sort(tasks, sort_key)
 
     todo_tasks = tasks.filter(status='todo')
     in_progress_tasks = tasks.filter(status='in progress')
