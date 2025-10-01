@@ -1,99 +1,106 @@
 const menuList = document.querySelectorAll(".menu-list__item");
 const titlepanelHead = document.querySelector(".panel__title");
 const managelistWrappers = document.querySelectorAll(".manage-list__wrapper");
-const chevronRight = document.querySelectorAll(".chevron-right");
 const panelthemChange = document.querySelectorAll(".panel-them__change");
-const panelContent = document.querySelectorAll(".panel__content");
 const statusTask = document.querySelectorAll(".status-task__item");
-const statusProject = document.querySelectorAll(".status-project__item");
 const addProject = document.querySelector(".panel__svg");
 const accountForm = document.getElementById("account-form");
 const accountEditBtn = document.getElementById("account-edit-btn");
 const accountSaveBtn = document.getElementById("account-save-btn");
-
 const headerProfile = document.querySelector(".nav__item--profile");
 const themeToggleItem = document.getElementById("panel-theme-toggle");
 
-// =====================
-// Notification Manager
-// =====================
-const NotificationManager = (function() {
-  const STORAGE_KEY = 'taskulo_notifications';
+const NotificationManager = (function () {
+  const STORAGE_KEY = "taskulo_notifications";
   const DEDUPE_WINDOW_MS = 2000;
-  const recent = new Map(); // key -> timestamp
-  const toastContainer = (function() {
-    const el = document.getElementById('toast-container');
+  const recent = new Map();
+  const toastContainer = (function () {
+    const el = document.getElementById("toast-container");
     if (el) return el;
-    const created = document.createElement('div');
-    created.id = 'toast-container';
-    created.className = 'toast-container';
-    // Fallback inline styles to guarantee visibility even if CSS not loaded
-    created.style.position = 'fixed';
-    created.style.right = '20px';
-    created.style.top = '20px';
-    created.style.display = 'flex';
-    created.style.flexDirection = 'column';
-    created.style.gap = '12px';
-    created.style.zIndex = '999999';
+    const created = document.createElement("div");
+    created.id = "toast-container";
+    created.className = "toast-container";
+    created.style.position = "fixed";
+    created.style.right = "20px";
+    created.style.top = "20px";
+    created.style.display = "flex";
+    created.style.flexDirection = "column";
+    created.style.gap = "12px";
+    created.style.zIndex = "999999";
     document.body.appendChild(created);
     return created;
   })();
-  const dropdown = document.getElementById('notification-options');
+
+  const dropdown = document.getElementById("notification-options");
 
   function loadAll() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   }
   function saveAll(items) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, 50))); } catch {}
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, 50)));
+    } catch {}
   }
   function colorClass(type) {
-    switch(type) {
-      case 'success': return 'green';
-      case 'error': return 'red';
-      case 'warning': return 'yellow';
-      case 'update': return 'blue';
-      case 'info': default: return 'blue';
+    switch (type) {
+      case "success":
+        return "green";
+      case "error":
+        return "red";
+      case "warning":
+        return "yellow";
+      case "update":
+        return "blue";
+      case "info":
+      default:
+        return "blue";
     }
   }
   function svgIcon(type) {
-    if (type === 'success') return '<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>';
-    if (type === 'error') return '<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>';
-    if (type === 'update') return '<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 0 1 15.54-5.94"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 0 1-15.54 5.94"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 7V4h3"/><path stroke-linecap="round" stroke-linejoin="round" d="M20 17v3h-3"/></svg>';
+    if (type === "success")
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>';
+    if (type === "error")
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>';
+    if (type === "update")
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 0 1 15.54-5.94"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 0 1-15.54 5.94"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 7V4h3"/><path stroke-linecap="round" stroke-linejoin="round" d="M20 17v3h-3"/></svg>';
     return '<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/></svg>';
   }
   function closeIcon() {
     return '<svg xmlns="http://www.w3.org/2000/svg" fill="none" width="21" height="21" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>';
   }
 
-  function renderDropdownItem(item, prepend=true) {
+  function renderDropdownItem(item, prepend = true) {
     if (!dropdown) return;
-    // remove empty-state if present
-    const empty = dropdown.querySelector('.notification-empty');
+    const empty = dropdown.querySelector(".notification-empty");
     if (empty) empty.remove();
-    const wrapper = document.createElement('div');
+    const wrapper = document.createElement("div");
     wrapper.className = `notification-option ${colorClass(item.type)}`;
-    wrapper.setAttribute('data-id', item.id);
+    wrapper.setAttribute("data-id", item.id);
     wrapper.innerHTML = `
       <div class="notification-start-icon">${svgIcon(item.type)}</div>
       <div class="notification-text">
-        <div class="notification-title">${item.title || ''}</div>
-        <div class="notification-description">${item.description || ''}</div>
+        <div class="notification-title">${item.title || ""}</div>
+        <div class="notification-description">${item.description || ""}</div>
       </div>
       <div class="notification-end-icon" data-action="notif-dismiss" aria-label="Dismiss notification">${closeIcon()}</div>
     `;
-    if (prepend) dropdown.prepend(wrapper); else dropdown.appendChild(wrapper);
+    if (prepend) dropdown.prepend(wrapper);
+    else dropdown.appendChild(wrapper);
   }
 
   function rebuildDropdown() {
     if (!dropdown) return;
-    // Keep existing structure if any, but we can append saved items at bottom
-    // Remove previously injected items (identified by data-id)
-    dropdown.querySelectorAll('.notification-option[data-id]')?.forEach(el => el.remove());
+
+    dropdown
+      .querySelectorAll(".notification-option[data-id]")
+      ?.forEach((el) => el.remove());
     const all = loadAll();
-    all.forEach(it => renderDropdownItem(it, false));
+    all.forEach((it) => renderDropdownItem(it, false));
   }
 
   function archive(item) {
@@ -105,95 +112,109 @@ const NotificationManager = (function() {
 
   function showToast(item) {
     if (!toastContainer) return;
-    const toast = document.createElement('div');
-    toast.className = 'toast-item';
-    // minimal inline styles as fallback
-    toast.style.minWidth = '280px';
-    toast.style.maxWidth = '360px';
-    toast.style.borderRadius = '14px';
-    toast.style.background = 'rgba(28,29,34,0.9)';
-    toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
-    // prefer CSS class animation; keep fallback inline if needed
-    toast.classList.add('toast-enter');
-    toast.style.animation = toast.style.animation || 'toastIn 420ms cubic-bezier(.22,1,.36,1) forwards';
-    // Use same inner style as dropdown to respect your design
+    const toast = document.createElement("div");
+    toast.className = "toast-item";
+    toast.style.minWidth = "280px";
+    toast.style.maxWidth = "360px";
+    toast.style.borderRadius = "14px";
+    toast.style.background = "rgba(28,29,34,0.9)";
+    toast.style.boxShadow = "0 10px 30px rgba(0,0,0,0.2)";
+    toast.classList.add("toast-enter");
+    toast.style.animation =
+      toast.style.animation ||
+      "toastIn 420ms cubic-bezier(.22,1,.36,1) forwards";
     toast.innerHTML = `
-      <div class="notification-option ${colorClass(item.type)}" style="margin:0;">
+      <div class="notification-option ${colorClass(
+        item.type
+      )}" style="margin:0;">
         <div class="notification-start-icon">${svgIcon(item.type)}</div>
         <div class="notification-text">
-          <div class="notification-title">${item.title || ''}</div>
-          <div class="notification-description">${item.description || ''}</div>
+          <div class="notification-title">${item.title || ""}</div>
+          <div class="notification-description">${item.description || ""}</div>
         </div>
       </div>`;
     toastContainer.appendChild(toast);
 
     let closed = false;
     function closeNow() {
-      if (closed) return; closed = true;
-      toast.classList.add('toast-leave');
-      // leave animation fallback if class not styled
-      toast.style.animation = toast.style.animation || 'toastOut 340ms cubic-bezier(.55,.06,.68,.19) forwards';
+      if (closed) return;
+      closed = true;
+      toast.classList.add("toast-leave");
+      toast.style.animation =
+        toast.style.animation ||
+        "toastOut 340ms cubic-bezier(.55,.06,.68,.19) forwards";
       setTimeout(() => toast.remove(), 260);
     }
-    // Auto close and archive after 5s
-    setTimeout(() => { closeNow(); archive(item); }, 5000);
+    setTimeout(() => {
+      closeNow();
+      archive(item);
+    }, 5000);
   }
 
-  function notify({title='', description='', type='info'}) {
+  function notify({ title = "", description = "", type = "info" }) {
     const key = `${type}|${title}|${description}`;
     const now = Date.now();
     const last = recent.get(key) || 0;
     if (now - last < DEDUPE_WINDOW_MS) {
-      return; // skip duplicate burst
+      return;
     }
     recent.set(key, now);
     const item = {
       id: String(Date.now()) + Math.random().toString(36).slice(2),
-      title, description, type,
+      title,
+      description,
+      type,
       ts: Date.now(),
     };
     showToast(item);
   }
 
-  // Init: rebuild dropdown from storage; attach dismiss handler
-  document.addEventListener('DOMContentLoaded', rebuildDropdown);
-  // Event delegation to remove from dropdown + storage (container-specific)
-  dropdown && dropdown.addEventListener('click', function(e) {
-    const closeBtn = e.target.closest('[data-action="notif-dismiss"]');
-    if (!closeBtn) return;
-    // Prevent dropdown from closing
-    e.stopPropagation();
-    const option = closeBtn.closest('.notification-option[data-id]');
-    if (!option) return;
-    const id = option.getAttribute('data-id');
-    option.remove();
-    const all = loadAll().filter(it => it.id !== id);
-    saveAll(all);
-    // if list is empty, show empty-state
-    if (dropdown && !dropdown.querySelector('.notification-option[data-id]')) {
-      const empty = document.createElement('div');
-      empty.className = 'notification-empty';
-      empty.textContent = 'فعلاً هیچ نوتیفی نداری! وقتی کاری انجام بدی، اینجا ظاهر می‌شه. 🚀';
-      dropdown.appendChild(empty);
-    }
-    // Keep dropdown visible after delete
-    if (dropdown) dropdown.style.display = 'block';
-  });
+  document.addEventListener("DOMContentLoaded", rebuildDropdown);
+
+  dropdown &&
+    dropdown.addEventListener("click", function (e) {
+      const closeBtn = e.target.closest('[data-action="notif-dismiss"]');
+      if (!closeBtn) return;
+
+      e.stopPropagation();
+      const option = closeBtn.closest(".notification-option[data-id]");
+      if (!option) return;
+      const id = option.getAttribute("data-id");
+      option.remove();
+      const all = loadAll().filter((it) => it.id !== id);
+      saveAll(all);
+
+      if (
+        dropdown &&
+        !dropdown.querySelector(".notification-option[data-id]")
+      ) {
+        const empty = document.createElement("div");
+        empty.className = "notification-empty";
+        empty.textContent =
+          "فعلاً هیچ نوتیفی نداری! وقتی کاری انجام بدی، اینجا ظاهر می‌شه. 🚀";
+        dropdown.appendChild(empty);
+      }
+
+      if (dropdown) dropdown.style.display = "block";
+    });
 
   return { notify };
 })();
 
-// Expose for console testing
-try { window.NotificationManager = NotificationManager; } catch {}
+try {
+  window.NotificationManager = NotificationManager;
+} catch {}
 
-// Ready log for quick diagnostics
-try { console.info('[Taskulo] NotificationManager ready'); } catch {}
-
-// Keep notification dropdown open on internal clicks
-document.addEventListener('DOMContentLoaded', function() {
-  const notifOptions = document.getElementById('notification-options');
+document.addEventListener("DOMContentLoaded", function () {
+  const notifOptions = document.getElementById("notification-options");
   if (notifOptions) {
-    notifOptions.addEventListener('click', function(e){ e.stopPropagation(); }, false);
+    notifOptions.addEventListener(
+      "click",
+      function (e) {
+        e.stopPropagation();
+      },
+      false
+    );
   }
 });
 
@@ -229,7 +250,6 @@ function openSidebarContent(contentId) {
   }
 }
 
-// Handle theme toggle menu item
 if (themeToggleItem) {
   themeToggleItem.addEventListener("click", function (e) {
     e.preventDefault();
@@ -266,9 +286,8 @@ if (headerProfile) {
 
 menuList.forEach((item) => {
   item.addEventListener("click", function (e) {
-    // Skip panel switching for theme toggle item
     if (this.id === "panel-theme-toggle") {
-      return; // handler above takes care of toggling
+      return;
     }
     let contentId = this.getAttribute("data-content-id");
     let contentElement = document.querySelector(contentId);
@@ -369,7 +388,15 @@ function selectOption(option) {
 function toggleDatePicker() {
   const picker = document.getElementById("date-picker");
   if (!picker) return;
-  picker.style.display = picker.style.display === "block" ? "none" : "block";
+  if (picker.style.display === "block") {
+    picker.style.display = "none";
+  } else {
+    if (typeof window.__openHeaderCalendar === "function") {
+      window.__openHeaderCalendar();
+    } else {
+      picker.style.display = "block";
+    }
+  }
 }
 
 document.addEventListener("click", function (event) {
@@ -386,90 +413,138 @@ document.addEventListener("click", function (event) {
 });
 
 (function () {
-  const picker = document.getElementById("date-picker");
-  const grid = document.getElementById("calendar-grid");
-  const title = document.getElementById("calendar-title");
-  const prevBtn = document.querySelector(".calendar__nav--prev");
-  const nextBtn = document.querySelector(".calendar__nav--next");
-  if (!picker || !grid || !title || !prevBtn || !nextBtn) return;
+  document.addEventListener("DOMContentLoaded", function () {
+    const picker = document.getElementById("date-picker");
+    const grid = document.getElementById("calendar-grid");
+    const title = document.getElementById("calendar-title");
+    const prevBtn = document.querySelector(".calendar__nav--prev");
+    const nextBtn = document.querySelector(".calendar__nav--next");
+    if (!picker || !grid || !title || !prevBtn || !nextBtn) return;
 
-  let current = new Date();
-  let selected = null;
+    let current = new Date();
+    let selected = null;
 
-  function renderCalendar(date) {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    title.textContent = date.toLocaleDateString(undefined, {
-      month: "long",
-      year: "numeric",
-    });
-    grid.innerHTML = "";
-
-    const firstDay = new Date(year, month, 1);
-    const startDayOfWeek = firstDay.getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-    for (let i = startDayOfWeek - 1; i >= 0; i--) {
-      const d = document.createElement("div");
-      d.className = "calendar__day calendar__day--muted";
-      d.textContent = String(daysInPrevMonth - i);
-      grid.appendChild(d);
+    function getActiveProjectIdFromDOM() {
+      let activeLi = null;
+      const activeSpan = document.querySelector(
+        ".project-link span.status-project__item--active"
+      );
+      if (activeSpan) activeLi = activeSpan.closest(".project-link");
+      if (!activeLi)
+        activeLi = document.querySelector(
+          '.status-project__item.project-link[data-id="0"]'
+        );
+      const pid = activeLi ? activeLi.getAttribute("data-id") : "0";
+      return pid || "0";
     }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-      const d = document.createElement("div");
-      d.className = "calendar__day";
-      d.textContent = String(day);
-      const thisDate = new Date(year, month, day);
-      const today = new Date();
-      if (thisDate.toDateString() === today.toDateString()) {
-        d.classList.add("calendar__day--today");
+    function renderCalendar(date) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthNames = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      title.textContent = `${monthNames[month]} ${year}`;
+      grid.innerHTML = "";
+
+      const firstDay = new Date(year, month, 1);
+      const startDayOfWeek = firstDay.getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      for (let i = startDayOfWeek - 1; i >= 0; i--) {
+        const d = document.createElement("div");
+        d.className = "calendar__day calendar__day--muted";
+        d.textContent = String(daysInPrevMonth - i);
+        grid.appendChild(d);
       }
-      if (selected && thisDate.toDateString() === selected.toDateString()) {
-        d.classList.add("calendar__day--selected");
-      }
-      d.addEventListener("click", function () {
-        selected = thisDate;
-        const timeEl = document.querySelector(".nav .date");
-        if (timeEl) {
-          const formatted = thisDate.toLocaleDateString(undefined, {
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          });
-          timeEl.textContent = formatted;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const d = document.createElement("button");
+        d.type = "button";
+        d.className = "calendar__day";
+        d.textContent = String(day);
+        const thisDate = new Date(year, month, day);
+        const today = new Date();
+        if (thisDate.toDateString() === today.toDateString()) {
+          d.classList.add("calendar__day--today");
         }
-        picker.style.display = "none";
-      });
-      grid.appendChild(d);
+        if (selected && thisDate.toDateString() === selected.toDateString()) {
+          d.classList.add("calendar__day--selected");
+        }
+        d.addEventListener("click", function () {
+          selected = thisDate;
+          const timeEl = document.querySelector(".nav__item--date .date");
+          if (timeEl) {
+            const dd = String(thisDate.getDate());
+            const mm = monthNames[thisDate.getMonth()];
+            const yyyy = thisDate.getFullYear();
+            timeEl.textContent = `${dd} ${mm} ${yyyy}`;
+          }
+
+          const iso = `${thisDate.getFullYear()}-${String(
+            thisDate.getMonth() + 1
+          ).padStart(2, "0")}-${String(thisDate.getDate()).padStart(2, "0")}`;
+          const formEl = document.getElementById("search-form");
+          const searchUrl = formEl ? formEl.dataset.searchUrl : null;
+          const projectId = getActiveProjectIdFromDOM();
+          if (searchUrl) {
+            const url = `${searchUrl}?date=${encodeURIComponent(
+              iso
+            )}&project=${encodeURIComponent(projectId)}`;
+            fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+              .then((r) => r.text())
+              .then((html) => {
+                const taskContainer = document.getElementById("task-container");
+                if (taskContainer) taskContainer.innerHTML = html;
+              })
+              .catch(() => {});
+          }
+          picker.style.display = "none";
+        });
+        grid.appendChild(d);
+      }
+
+      const filled = grid.children.length;
+      const totalCells = Math.ceil(filled / 7) * 7;
+      for (let day = 1; filled + day <= totalCells; day++) {
+        const d = document.createElement("div");
+        d.className = "calendar__day calendar__day--muted";
+        d.textContent = String(day);
+        grid.appendChild(d);
+      }
     }
 
-    const filled = grid.children.length;
-    const totalCells = Math.ceil(filled / 7) * 7;
-    for (let day = 1; filled + day <= totalCells; day++) {
-      const d = document.createElement("div");
-      d.className = "calendar__day calendar__day--muted";
-      d.textContent = String(day);
-      grid.appendChild(d);
-    }
-  }
+    prevBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      current.setMonth(current.getMonth() - 1);
+      renderCalendar(current);
+    });
+    nextBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      current.setMonth(current.getMonth() + 1);
+      renderCalendar(current);
+    });
 
-  prevBtn.addEventListener("click", function (e) {
-    e.stopPropagation();
-    current.setMonth(current.getMonth() - 1);
+    window.__openHeaderCalendar = function () {
+      renderCalendar(current);
+      picker.style.display = "block";
+    };
+
     renderCalendar(current);
   });
-  nextBtn.addEventListener("click", function (e) {
-    e.stopPropagation();
-    current.setMonth(current.getMonth() + 1);
-    renderCalendar(current);
-  });
-
-  renderCalendar(current);
 })();
-
-// (Removed) Legacy simple search IIFE; replaced by debounced AJAX search above
 
 function toggleActions(taskId) {
   const allMenus = document.querySelectorAll(".task-options");
@@ -547,8 +622,11 @@ document.addEventListener("click", async function (e) {
 
         try {
           const tTitle = taskCard.getAttribute("data-title") || "";
-          NotificationManager.notify({ title: "Task deleted", description: tTitle, type: "error" });
-          console.debug('[Taskulo] Toast: Task deleted', tTitle);
+          NotificationManager.notify({
+            title: "Task deleted",
+            description: tTitle,
+            type: "error",
+          });
         } catch {}
 
         let activeLi = null;
@@ -686,7 +764,6 @@ function attachProjectActions(projectItem) {
       input.value = current;
       labelEl.style.display = "none";
       projectItem.insertBefore(input, actions);
-      // Enter editing state: hide actions to avoid overlap with input
       projectItem.classList.add("editing");
       actions.style.display = "none";
       input.focus();
@@ -715,16 +792,22 @@ function attachProjectActions(projectItem) {
             labelEl.textContent = data.name || newName;
             input.remove();
             labelEl.style.display = "";
-            // restore actions and state
+
             actions.style.display = "";
             projectItem.classList.remove("editing");
-            try { NotificationManager.notify({ title: "Project renamed", description: data.name || newName, type: "success" }); } catch {}
+            try {
+              NotificationManager.notify({
+                title: "Project renamed",
+                description: data.name || newName,
+                type: "success",
+              });
+            } catch {}
           },
           error: function (xhr) {
             console.error("Rename error:", xhr.responseText);
             input.remove();
             labelEl.style.display = "";
-            // restore actions and state even on error
+
             actions.style.display = "";
             projectItem.classList.remove("editing");
           },
@@ -738,7 +821,7 @@ function attachProjectActions(projectItem) {
         if (renameCommitted) return;
         input.remove();
         labelEl.style.display = "";
-        // restore actions and state
+
         actions.style.display = "";
         projectItem.classList.remove("editing");
       }
@@ -754,7 +837,6 @@ function attachProjectActions(projectItem) {
       input.addEventListener(
         "blur",
         function () {
-          // If already committed by Enter, ignore blur
           if (!renameCommitted) commitRename();
         },
         { once: true }
@@ -777,7 +859,10 @@ function attachProjectActions(projectItem) {
           csrfmiddlewaretoken: csrfToken,
         },
         success: function (data) {
-          var pTitle = (projectItem && projectItem.textContent ? projectItem.textContent.trim() : "");
+          var pTitle =
+            projectItem && projectItem.textContent
+              ? projectItem.textContent.trim()
+              : "";
           projectItem.remove();
           var allProjectsLi = document.querySelector(
             '.status-project__item.project-link[data-id="0"]'
@@ -792,7 +877,13 @@ function attachProjectActions(projectItem) {
               "All projects " + "(" + (data.total_project || 0) + ")"
             );
           }
-          try { NotificationManager.notify({ title: "Project deleted", description: pTitle, type: "error" }); } catch {}
+          try {
+            NotificationManager.notify({
+              title: "Project deleted",
+              description: pTitle,
+              type: "error",
+            });
+          } catch {}
         },
         error: function (xhr) {
           console.error("Delete error:", xhr.responseText);
@@ -848,7 +939,6 @@ addProject.addEventListener("click", function () {
   });
 
   text.addEventListener("blur", function () {
-    // If blur is caused by clicking the save button, skip handling here
     if (clickingSave) {
       clickingSave = false;
       return;
@@ -893,7 +983,7 @@ addProject.addEventListener("click", function () {
         const item = document.createElement("span");
         item.textContent = data.name || value;
         newProject.setAttribute("data-id", data.id);
-        // make it clickable like others
+
         newProject.classList.add("project-link");
         newProject.setAttribute(
           "data-url",
@@ -915,7 +1005,13 @@ addProject.addEventListener("click", function () {
           );
         }
         saved = true;
-        try { NotificationManager.notify({ title: "Project added", description: data.name || value, type: "success" }); } catch {}
+        try {
+          NotificationManager.notify({
+            title: "Project added",
+            description: data.name || value,
+            type: "success",
+          });
+        } catch {}
       },
       error: function (xhr, status, error) {
         console.log("ERROR:", xhr.status, error, xhr.responseText);
@@ -951,8 +1047,7 @@ function toggleNotificationOptions() {
 document.addEventListener("click", function (event) {
   const notiftWrapper = document.querySelector(".nav__item--notification");
   const notifOptions = document.getElementById("notification-options");
-  
-  // keep open if click is inside dropdown list
+
   if (notifOptions && notifOptions.contains(event.target)) {
     event.stopPropagation();
     return;
@@ -1039,7 +1134,6 @@ if (gmailField) {
   });
 }
 
-// Delegated click: open project tasks (works for old and new items)
 document.addEventListener("click", function (e) {
   const fromActions = e.target.closest(
     ".project-actions, .project-rename-input"
@@ -1122,7 +1216,13 @@ document.addEventListener("submit", function (e) {
     })
     .then(function (data) {
       if (data.errors) {
-        try { NotificationManager.notify({ title: "Validation warning", description: "Please check the fields", type: "warning" }); } catch {}
+        try {
+          NotificationManager.notify({
+            title: "Validation warning",
+            description: "Please check the fields",
+            type: "warning",
+          });
+        } catch {}
         alert("Validation error");
         return;
       }
@@ -1146,8 +1246,9 @@ document.addEventListener("submit", function (e) {
       }
       const url = activeLi ? activeLi.dataset.url : null;
       if (url) {
-        // Suppress any immediate 'updated' toasts for a brief window after create
-        try { suppressUpdateToastUntil = Date.now() + 2000; } catch {}
+        try {
+          suppressUpdateToastUntil = Date.now() + 2000;
+        } catch {}
         fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
           .then(function (r) {
             return r.text();
@@ -1155,26 +1256,38 @@ document.addEventListener("submit", function (e) {
           .then(function (html) {
             const taskContainer = document.getElementById("task-container");
             if (taskContainer) taskContainer.innerHTML = html;
-            try { NotificationManager.notify({ title: "Task created", description: (data && data.title) || "", type: "success" }); } catch {}
+            try {
+              NotificationManager.notify({
+                title: "Task created",
+                description: (data && data.title) || "",
+                type: "success",
+              });
+            } catch {}
           });
       }
     })
     .catch(function (err) {
       console.error("Create task error", err);
-      try { NotificationManager.notify({ title: "Server error", description: "Could not create task", type: "error" }); } catch {}
+      try {
+        NotificationManager.notify({
+          title: "Server error",
+          description: "Could not create task",
+          type: "error",
+        });
+      } catch {}
     })
-    .finally(function(){ isCreatingTaskSubmitting = false; });
+    .finally(function () {
+      isCreatingTaskSubmitting = false;
+    });
 });
 
 let suppressUpdateToastUntil = 0;
 
-// Inline task edit (AJAX) and notify
 document.addEventListener("submit", function (e) {
   const editForm = e.target.closest(".task.task--form form.task-form");
   if (!editForm) return;
   e.preventDefault();
 
-  // Only handle true update endpoints
   if (!/update-task\//.test(editForm.action)) return;
 
   const formData = new FormData(editForm);
@@ -1183,22 +1296,31 @@ document.addEventListener("submit", function (e) {
     headers: { "X-Requested-With": "XMLHttpRequest" },
     body: formData,
   })
-    .then(function (res) { return res.json(); })
+    .then(function (res) {
+      return res.json();
+    })
     .then(function (data) {
       if (data.errors) {
-        try { NotificationManager.notify({ title: "Validation warning", description: "Please check the fields", type: "warning" }); } catch {}
+        try {
+          NotificationManager.notify({
+            title: "Validation warning",
+            description: "Please check the fields",
+            type: "warning",
+          });
+        } catch {}
         alert("Validation error");
         return;
       }
-      // Refresh current project's tasks so columns and counts update
+
       let activeLi = null;
       const activeSpan = document.querySelector(
         ".project-link span.status-project__item--active"
       );
       if (activeSpan) activeLi = activeSpan.closest(".project-link");
-      if (!activeLi) activeLi = document.querySelector(
-        '.status-project__item.project-link[data-id="0"]'
-      );
+      if (!activeLi)
+        activeLi = document.querySelector(
+          '.status-project__item.project-link[data-id="0"]'
+        );
       const url = activeLi ? activeLi.dataset.url : null;
       if (url) {
         fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
@@ -1220,95 +1342,104 @@ document.addEventListener("submit", function (e) {
     })
     .catch(function (err) {
       console.error("Update task error", err);
-      try { NotificationManager.notify({ title: "Server error", description: "Could not update task", type: "error" }); } catch {}
+      try {
+        NotificationManager.notify({
+          title: "Server error",
+          description: "Could not update task",
+          type: "error",
+        });
+      } catch {}
     });
 });
 
-// =====================
-// Header Search Feature
-// =====================
-(function() {
-  const form = document.getElementById('search-form');
+(function () {
+  const form = document.getElementById("search-form");
   if (!form) return;
 
-  const input = document.getElementById('search-input');
-  const btn = document.getElementById('search-btn');
-  const suggestBox = document.getElementById('search-suggestions');
+  const input = document.getElementById("search-input");
+  const btn = document.getElementById("search-btn");
+  const suggestBox = document.getElementById("search-suggestions");
   const suggestUrl = form.dataset.suggestUrl;
   const searchUrl = form.dataset.searchUrl;
 
   let timerId = null;
 
   function debounce(fn, delay) {
-    return function(...args) {
+    return function (...args) {
       clearTimeout(timerId);
       timerId = setTimeout(() => fn.apply(this, args), delay);
     };
   }
 
   function getActiveProjectId() {
-    const activeSpan = document.querySelector('.project-link span.status-project__item--active');
-    const link = activeSpan ? activeSpan.closest('.project-link') : null;
+    const activeSpan = document.querySelector(
+      ".project-link span.status-project__item--active"
+    );
+    const link = activeSpan ? activeSpan.closest(".project-link") : null;
     if (link && link.dataset.id) return link.dataset.id;
-    const allLink = document.querySelector('.status-project__item.project-link[data-id="0"]');
-    return (allLink && allLink.dataset.id) || '0';
+    const allLink = document.querySelector(
+      '.status-project__item.project-link[data-id="0"]'
+    );
+    return (allLink && allLink.dataset.id) || "0";
   }
 
   function renderSuggestions(items) {
     if (!suggestBox) return;
-    suggestBox.innerHTML = '';
+    suggestBox.innerHTML = "";
     if (!items || items.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'search-suggestion';
-      empty.textContent = 'No results';
-      empty.setAttribute('aria-disabled', 'true');
+      const empty = document.createElement("div");
+      empty.className = "search-suggestion";
+      empty.textContent = "No results";
+      empty.setAttribute("aria-disabled", "true");
       suggestBox.appendChild(empty);
-      suggestBox.style.display = 'block';
-      suggestBox.style.position = suggestBox.style.position || 'absolute';
-      suggestBox.style.zIndex = suggestBox.style.zIndex || '9999';
+      suggestBox.style.display = "block";
+      suggestBox.style.position = suggestBox.style.position || "absolute";
+      suggestBox.style.zIndex = suggestBox.style.zIndex || "9999";
       return;
     }
-    items.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'search-suggestion';
+    items.forEach((item) => {
+      const div = document.createElement("div");
+      div.className = "search-suggestion";
       div.textContent = item.title;
       div.dataset.id = item.id;
       div.dataset.status = item.status;
       suggestBox.appendChild(div);
     });
-    suggestBox.style.display = 'block';
-    suggestBox.style.position = suggestBox.style.position || 'absolute';
-    suggestBox.style.zIndex = suggestBox.style.zIndex || '9999';
+    suggestBox.style.display = "block";
+    suggestBox.style.position = suggestBox.style.position || "absolute";
+    suggestBox.style.zIndex = suggestBox.style.zIndex || "9999";
   }
 
   function clearSuggestions() {
     if (!suggestBox) return;
-    suggestBox.innerHTML = '';
-    suggestBox.style.display = 'none';
+    suggestBox.innerHTML = "";
+    suggestBox.style.display = "none";
   }
 
-  const fetchSuggest = debounce(function(q) {
+  const fetchSuggest = debounce(function (q) {
     if (!q || q.trim().length === 0) {
       clearSuggestions();
       return;
     }
     if (!suggestUrl) return;
     fetch(`${suggestUrl}?q=${encodeURIComponent(q)}`, {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      headers: { "X-Requested-With": "XMLHttpRequest" },
     })
-      .then(r => (r.ok ? r.json() : { results: [] }))
-      .then(data => renderSuggestions((data && data.results) || []))
+      .then((r) => (r.ok ? r.json() : { results: [] }))
+      .then((data) => renderSuggestions((data && data.results) || []))
       .catch(() => clearSuggestions());
   }, 200);
 
   function performSearch(q) {
     if (!searchUrl) return;
     const project = getActiveProjectId();
-    const url = `${searchUrl}?q=${encodeURIComponent(q || '')}&project=${encodeURIComponent(project)}`;
-    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-      .then(r => r.text())
-      .then(html => {
-        const taskContainer = document.getElementById('task-container');
+    const url = `${searchUrl}?q=${encodeURIComponent(
+      q || ""
+    )}&project=${encodeURIComponent(project)}`;
+    fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+      .then((r) => r.text())
+      .then((html) => {
+        const taskContainer = document.getElementById("task-container");
         if (taskContainer) taskContainer.innerHTML = html;
         clearSuggestions();
       })
@@ -1316,16 +1447,16 @@ document.addEventListener("submit", function (e) {
   }
 
   if (input) {
-    input.addEventListener('input', function() {
+    input.addEventListener("input", function () {
       fetchSuggest(this.value);
     });
-    input.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
         e.preventDefault();
         performSearch(input.value);
       }
     });
-    input.addEventListener('focus', function() {
+    input.addEventListener("focus", function () {
       if (this.value && this.value.trim().length > 0) {
         fetchSuggest(this.value);
       }
@@ -1333,28 +1464,28 @@ document.addEventListener("submit", function (e) {
   }
 
   if (form) {
-    form.addEventListener('submit', function(e) {
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
-      performSearch(input ? input.value : '');
+      performSearch(input ? input.value : "");
     });
   }
 
   if (btn) {
-    btn.addEventListener('click', function() {
-      performSearch(input ? input.value : '');
+    btn.addEventListener("click", function () {
+      performSearch(input ? input.value : "");
     });
   }
 
   if (suggestBox) {
-    suggestBox.addEventListener('click', function(e) {
-      const item = e.target.closest('.search-suggestion');
+    suggestBox.addEventListener("click", function (e) {
+      const item = e.target.closest(".search-suggestion");
       if (!item) return;
       if (input) input.value = item.textContent.trim();
-      performSearch(input ? input.value : '');
+      performSearch(input ? input.value : "");
     });
   }
 
-  document.addEventListener('click', function(e) {
+  document.addEventListener("click", function (e) {
     if (!form.contains(e.target)) clearSuggestions();
   });
 })();

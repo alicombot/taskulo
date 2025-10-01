@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+from datetime import date as dt_date
 from project.models import Project
 from .forms import TaskForm
 from .models import Task
@@ -177,6 +178,7 @@ def search_suggest(request):
 @login_required
 def search(request):
     q = request.GET.get('q', '').strip()
+    date_str = request.GET.get('date', '').strip()
     project_id = request.GET.get('project')
 
     project = None
@@ -189,7 +191,20 @@ def search(request):
             project = None
 
     if q:
-        tasks = tasks.filter(Q(title__icontains=q) | Q(description__icontains=q))
+        # If q looks like an ISO date (YYYY-MM-DD), filter by due_date (DateField)
+        try:
+            q_date = dt_date.fromisoformat(q)
+            tasks = tasks.filter(due_date=q_date)
+        except ValueError:
+            tasks = tasks.filter(Q(title__icontains=q) | Q(description__icontains=q))
+
+    # Optional date filter (due_date exact match)
+    if date_str:
+        try:
+            d = dt_date.fromisoformat(date_str)
+            tasks = tasks.filter(due_date=d)
+        except ValueError:
+            pass
 
     todo_tasks = tasks.filter(status='todo')
     in_progress_tasks = tasks.filter(status='in progress')

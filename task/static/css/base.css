@@ -1231,22 +1231,38 @@ select.task-form__select option {
   color: var(--text-first-color);
 }
 
+/* Calendar polish: ensure button days look like plain cells */
+.calendar__day {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  background: transparent;
+  width: 100%;
+}
+
 .calendar__day--muted {
   color: rgba(28, 29, 34, 0.35);
 }
 
-.calendar__day:hover {
-  background: rgba(28, 29, 34, 0.06);
-}
+.calendar__day:hover { background: rgba(28, 29, 34, 0.06); }
 
 .calendar__day--today {
-  outline: 2px solid rgba(120, 215, 0, 0.6);
+  outline: 2px solid rgba(119, 94, 233, 0.6);
   outline-offset: -2px;
-  border-radius: 0.4rem;
+  border-radius: 8px;
 }
 
-.calendar__day--selected {
-  background: rgba(120, 215, 0, 0.15);
+.calendar__day--selected { background: rgba(119, 94, 233, 0.16); }
+
+/* Calendar nav hover/active feedback */
+.calendar__nav:hover { background: rgba(28, 29, 34, 0.09); }
+.calendar__nav:active { transform: translateY(1px); }
+
+/* Slightly richer popover look without changing placement */
+.date-picker {
+  min-width: 24rem;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  border: 1px solid rgba(28, 29, 34, 0.08);
 }
 
 .date {
