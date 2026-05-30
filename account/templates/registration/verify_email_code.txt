@@ -1,0 +1,12 @@
+Subject: Your Taskulo verification code
+
+Hello,
+
+Use the following 4-digit code to verify your email for Taskulo:
+{{ verification_code }}
+
+This code expires in 2 minutes. Do not share it with anyone.
+
+If you did not sign up for Taskulo, you can safely ignore this email.
+
+

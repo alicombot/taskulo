@@ -1,9 +1,12 @@
 {% extends  'base/index.html' %}
+{% block title %}
+
+{% endblock %}
 {% load static %}
 {% block content %}
     <main class="main">
 
-    <section class="home">
+    <section id="home" class="home">
 
         <div class="container">
 
@@ -14,17 +17,17 @@
                     <div class="home__content">
 
                         <h1 class="home__title">
-                            <span>ToDo-List </span>helps <span>teams work </span>more <span>collaboratively </span>and
+                            <span>Taskulo </span>helps <span>teams work </span>more <span>collaboratively </span>and
                             get more done.
                         </h1>
 
                         <h3 class="home__caption">
-                            ToDo-List is project management software that is centered on teamto deliver products on
+                            Taskulo is project management software that is centered on teamto deliver products on
                             time.
                         </h3>
 
                         <div class="home__link">
-                            <a href="./index.html">Lets go</a>
+                            <a href="{% url 'account:sign_up' %}">Lets go</a>
                         </div>
 
                     </div>
@@ -42,7 +45,7 @@
 
     </section>
 
-    <section class="aboutus">
+    <section id="aboutus" class="aboutus">
 
         <div class="container">
 
@@ -88,7 +91,7 @@
 
 
                     <div class="about-content__btn">
-                        <a href="./register.html">Get in free</a>
+                        <a href="{% url 'account:sign_up' %}">Get in free</a>
                     </div>
                 </div>
 
@@ -98,7 +101,7 @@
 
     </section>
 
-    <section class="our-feature">
+    <section id="our-feature" class="our-feature">
 
         <div class="container">
 
@@ -221,7 +224,7 @@
 
     </section>
 
-    <section class="how-it-work">
+    <section id="how-it-work" class="how-it-work">
 
         <div class="container">
 
@@ -299,7 +302,7 @@
 
     </section>
 
-    <section class="start-planing">
+    <section id="start-planing" class="start-planing">
 
         <div class="container">
 
@@ -312,16 +315,16 @@
                 <div class="section-line"></div>
 
                 <p class="section-caption">
-                    Sign up and join over 1,000,000 teams worldwide who are using ToDo-List to get more done.
+                    Sign up and join over 1,000,000 teams worldwide who are using Taskulo to get more done.
                 </p>
 
             </div>
 
-            <a href="./register.html" class="start-planing__btn">Get it Free</a>
+            <a href="{% url 'account:sign_up' %}" class="start-planing__btn">Get it Free</a>
 
         </div>
         <h3 class="copy-right">
-            © 2025 ToDo-List. All rights reserved.
+            © 2025 Taskulo. All rights reserved.
         </h3>
     </section>
 

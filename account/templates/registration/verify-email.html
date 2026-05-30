@@ -1,0 +1,59 @@
+{% extends  'base/index.html' %}
+{% load static %}
+{% block title %}
+	Verify Email
+{% endblock %}
+{% block content %}
+	    <main class="verify-container">
+        <div class="verify-card">
+            <div class="verify-icon"></div>
+
+            <h1 class="verify-title">Verify Your Email</h1>
+            <p class="verify-subtitle">
+                We've sent a 4-digit verification code to your email address. Please enter the code below to complete your registration.
+            </p>
+
+            <div class="verify-email-display" id="emailDisplay">
+                {{ email }}
+            </div>
+
+            <div class="verify-error-message" id="errorMessage">
+                Invalid verification code. Please try again.
+            </div>
+
+            <div class="verify-success-message" id="successMessage">
+                Email verified successfully! Redirecting...
+            </div>
+
+            <div class="verify-code-container">
+                <label class="verify-code-label" for="codeInput1">Enter verification code</label>
+                <div class="verify-code-inputs">
+                    <input type="text" class="verify-code-input" id="codeInput1" maxlength="1" autocomplete="off">
+                    <input type="text" class="verify-code-input" id="codeInput2" maxlength="1" autocomplete="off">
+                    <input type="text" class="verify-code-input" id="codeInput3" maxlength="1" autocomplete="off">
+                    <input type="text" class="verify-code-input" id="codeInput4" maxlength="1" autocomplete="off">
+                </div>
+            </div>
+
+            <button class="verify-btn" id="verifyBtn" disabled>
+                Verify Email
+            </button>
+
+            <div class="verify-resend-section">
+                <p class="verify-resend-text">
+                    Didn't receive the code?
+                </p>
+                <button class="verify-resend-btn" id="resendBtn" data-remaining="{{ remaining_seconds|default:0 }}">
+                    Resend Code
+                </button>
+                <div class="verify-countdown" id="countdown" style="display: none;">
+                    Resend available in <span id="countdownTimer">01:59</span>
+                </div>
+            </div>
+
+            <a href="./register.html" class="verify-back-link">
+                Back to Registration
+            </a>
+        </div>
+    </main>
+{% endblock %}

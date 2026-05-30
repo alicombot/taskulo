@@ -13,6 +13,11 @@ html{
     font-size: 62.5%;   /*  10px */
 }
 
+/* Ensure native hash jumps account for sticky header on landing */
+html {
+    scroll-padding-top: 10.8rem;
+}
+
 
 body{
     background-color: var(--primery-color);
@@ -41,7 +46,7 @@ a , a:active, a:visited {
 
     color: #000000;
     text-decoration: none;
-    
+
 }
 
 ul {
@@ -73,9 +78,10 @@ ul {
 
 
 .header {
-
     background-color: #1d233d ;
-  
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .nav {
@@ -106,15 +112,15 @@ ul {
 }
 
 .nav__btn--login,.nav__btn--signup{
-    
-   
+
+
     font-family: "Exo2-SemiBold";
     font-size: 1.4rem;
     padding: 1rem 2rem 1rem 2rem;
     border-radius: 2rem;
     transition: all 120ms ease-in;
-    
-    
+
+
 }
 
 .nav__btn--login a , .nav__btn--signup a {
@@ -124,7 +130,7 @@ ul {
     justify-content: center;
 }
 .nav__btn--login:hover , .nav__btn--signup:hover{
-    
+
     background-color: #775ee9;
     transition: all 200ms ease-in;
 
@@ -141,12 +147,12 @@ ul {
 
 
 .menu {
-    
+
     display: flex;
     z-index: 100;
     font-family: "Exo2-SemiBold";
     font-size: 1.4rem;
-    
+
 }
 
 .menu__item {
@@ -168,7 +174,7 @@ ul {
     display: inline-block;
     font-family: "Exo2-SemiBold";
     transition: color 120ms ease-in;
-   
+
 }
 
 .menu__item a {
@@ -199,7 +205,7 @@ ul {
 
 
 .main{
-     
+
 }
 
 .home{
@@ -208,21 +214,48 @@ ul {
     background-color: #1d233d
 }
 
+/* Ensure anchored sections account for sticky header when using hash navigation */
+#home, #aboutus, #our-feature, #how-it-work, #start-planing {
+    scroll-margin-top: 10.8rem;
+}
+
+/* Section entrance animation for smoother feel after hash navigation */
+@keyframes sectionFadeSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-enter {
+    animation: sectionFadeSlideIn 420ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .section-enter {
+        animation: none;
+    }
+}
+
 .row{
 
     display: flex;
     flex-wrap: wrap;
     align-items: center
-        
+
 }
 
 .col-6{
-    
+
 }
 
 .home__content{
-    
-    
+
+
 }
 
 .home__title{
@@ -246,7 +279,7 @@ ul {
     font-family: "Exo2-SemiBold";
     margin: 2.5rem 0 0 0;
     color: var(--primery-color);
-    
+
 }
 
 .home__link{
@@ -260,7 +293,7 @@ ul {
     width: 10rem;
     height: 4rem;
     margin: 2.5rem 0 0 0;
-    
+
 }
 
 .home__link a{
@@ -269,7 +302,7 @@ ul {
 
 
 .home__picture{
-   
+
 }
 
 .home__image{
@@ -282,15 +315,15 @@ ul {
 
 .aboutus{
     padding-top: 6rem;
-    
-   
+
+
 }
 
 
 .section-head{
-    
+
     text-align: center;
-   
+
 
 }
 
@@ -329,13 +362,13 @@ ul {
     justify-content: center;
     align-items: center;
     height: 58rem;
-    
+
 }
 
 .about__picture{
-    
+
     flex-basis: 48%;
-    
+
 }
 
 .about__image{
@@ -345,11 +378,11 @@ ul {
     padding: 4rem;
     padding-top: 0;
     padding-bottom: 0;
-    
+
 }
 
 .about__content{
-    
+
     font-family: "Exo2-SemiBold";
     font-size: 1.5rem;
     line-height: 2rem;
@@ -358,8 +391,8 @@ ul {
     padding: 4rem;
     padding-top: 0;
     padding-bottom: 0;
-   
-    
+
+
 }
 
 .about-content__btn{
@@ -374,7 +407,7 @@ ul {
     width: 10rem;
     height: 4rem;
     margin: 2.5rem 0 0 0;
-    
+
 }
 
 .about-content__btn a{
@@ -412,7 +445,7 @@ ul {
 
 .feature__content{
 
-    
+
     flex-basis: 50%;
 
 }
@@ -425,7 +458,7 @@ ul {
     gap: 2rem;
     flex-wrap: wrap;
     width: 60rem;
-    
+
 }
 
 .feature__content--item{
@@ -446,7 +479,7 @@ ul {
     border-radius: 1rem;
     width: 3.5rem;
     height: 3.5rem;
-    
+
     background-color: #775ee9;
 }
 
@@ -469,7 +502,7 @@ ul {
     margin: 0;
     margin-top: 1.5rem;
     line-height: 1.5rem;
-    
+
 }
 
 
@@ -481,8 +514,8 @@ ul {
 
     padding-top: 6rem;
     padding-bottom: 5rem;
-    
-    
+
+
 
 
 }
@@ -494,10 +527,10 @@ ul {
     justify-content: space-between;
     flex-direction: column;
     padding-top: 3rem;
-    
-    
-    
-    
+
+
+
+
 }
 
 .how-work__top{
@@ -516,7 +549,7 @@ ul {
     display: flex;
     justify-content: center;
     align-items: center;
-    
+
 }
 
 .how-work__top--image{
@@ -567,7 +600,7 @@ ul {
     display: flex;
     justify-content: center;
     align-items: center;
-    
+
 }
 
 .how-work__bottom--image{
@@ -595,7 +628,7 @@ ul {
     padding-top: 6rem;
     background-color: #1d233d;
     border-radius: 6rem 6rem 0 0;
-    
+
 }
 
 
@@ -736,3 +769,303 @@ ul {
     margin: .5rem 0 1.5rem 0;
 }
 
+/* Verify Email Page Styles */
+.verify-container {
+    background: #f3f6fd;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.verify-card {
+    background: #fff;
+    width: 100%;
+    max-width: 44rem;
+    border-radius: 1.6rem;
+    padding: 3.2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    text-align: center;
+}
+
+.verify-icon {
+    width: 8rem;
+    height: 8rem;
+    background: linear-gradient(135deg, #775ee9, #6b54e0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    position: relative;
+}
+
+.verify-icon::before {
+    content: "✉";
+    font-size: 3.2rem;
+    color: white;
+}
+
+.verify-title {
+    font-family: "Exo2-Bold";
+    font-size: 2.4rem;
+    color: var(--text-first-color);
+    margin: 0 0 1rem 0;
+}
+
+.verify-subtitle {
+    font-family: "Exo2-SemiBold";
+    font-size: 1.4rem;
+    color: var(--text-second-color);
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+}
+
+.verify-email-display {
+    background: #f9f9fb;
+    border: 0.1rem solid #d3d6e4;
+    border-radius: 0.8rem;
+    padding: 1.2rem;
+    margin: 0 0 2.4rem 0;
+    font-family: "Exo2-SemiBold";
+    font-size: 1.3rem;
+    color: var(--text-first-color);
+}
+
+.verify-code-container {
+    margin: 0 0 2.4rem 0;
+}
+
+.verify-code-label {
+    font-family: "Exo2-SemiBold";
+    font-size: 1.2rem;
+    color: var(--text-first-color);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.verify-code-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.6rem;
+}
+
+.verify-code-input {
+    width: 4.8rem;
+    height: 4.8rem;
+    border: 0.2rem solid #d3d6e4;
+    border-radius: 0.8rem;
+    background: #f9f9fb;
+    text-align: center;
+    font-family: "Exo2-Bold";
+    font-size: 1.8rem;
+    color: var(--text-first-color);
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.verify-code-input:focus {
+    border-color: #775ee9;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(119, 94, 233, 0.15);
+    transform: scale(1.05);
+}
+
+.verify-code-input.filled {
+    border-color: #775ee9;
+    background: #fff;
+}
+
+.verify-btn {
+    width: 100%;
+    height: 4.8rem;
+    background: #775ee9;
+    color: white;
+    border: none;
+    border-radius: 1.2rem;
+    font-family: "Exo2-SemiBold";
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 1.6rem;
+}
+
+.verify-btn:hover {
+    background: #6b54e0;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(119, 94, 233, 0.3);
+}
+
+.verify-btn:active {
+    transform: translateY(0);
+}
+
+.verify-btn:disabled {
+    background: #d3d6e4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.verify-resend-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.verify-resend-text {
+    font-family: "Exo2-SemiBold";
+    font-size: 1.2rem;
+    color: var(--text-second-color);
+}
+
+.verify-resend-btn {
+    background: none;
+    border: none;
+    color: #775ee9;
+    font-family: "Exo2-SemiBold";
+    font-size: 1.2rem;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.verify-resend-btn:hover {
+    color: #6b54e0;
+}
+
+.verify-resend-btn:disabled {
+    color: #d3d6e4;
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+.verify-countdown {
+    font-family: "Exo2-SemiBold";
+    font-size: 1.1rem;
+    color: #ffa048;
+}
+
+.verify-error-message {
+    background: #ffe6e6;
+    border: 0.1rem solid #ffcccc;
+    color: #d32f2f;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    font-family: "Exo2-SemiBold";
+    font-size: 1.2rem;
+    margin-bottom: 1.6rem;
+    display: none;
+}
+
+.verify-success-message {
+    background: #e8f5e8;
+    border: 0.1rem solid #c8e6c9;
+    color: #2e7d32;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    font-family: "Exo2-SemiBold";
+    font-size: 1.2rem;
+    margin-bottom: 1.6rem;
+    display: none;
+}
+
+.verify-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #775ee9;
+    font-family: "Exo2-SemiBold";
+    font-size: 1.2rem;
+    text-decoration: none;
+    margin-top: 1.6rem;
+    transition: color 0.2s ease;
+}
+
+.verify-back-link:hover {
+    color: #6b54e0;
+}
+
+.verify-back-link::before {
+    content: "←";
+    font-size: 1.4rem;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .verify-card {
+        padding: 2.4rem 1.6rem;
+    }
+
+    .verify-code-inputs {
+        gap: 0.8rem;
+    }
+
+    .verify-code-input {
+        width: 4rem;
+        height: 4rem;
+        font-size: 1.6rem;
+    }
+
+    .verify-title {
+        font-size: 2rem;
+    }
+
+    .verify-subtitle {
+        font-size: 1.2rem;
+    }
+}
+
+/* Animation for code input focus */
+@keyframes verify-input-focus {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1.05);
+    }
+}
+
+.verify-code-input:focus {
+    animation: verify-input-focus 0.2s ease;
+}
+
+/* Loading state for verify button */
+.verify-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.verify-btn.loading::after {
+    content: "";
+    position: absolute;
+    width: 2rem;
+    height: 2rem;
+    top: 50%;
+    left: 50%;
+    margin-left: -1rem;
+    margin-top: -1rem;
+    border: 0.2rem solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: verify-spin 1s linear infinite;
+}
+
+@keyframes verify-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Minor disabled styling for resend button during timer */
+.verify-resend-btn.is-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(30%);
+}
